@@ -43,6 +43,8 @@ func _ready() -> void:
 	buttons.add_child(pair)
 	buttons.add_child(quit)
 	box.add_child(buttons)
+	box.add_child(Ui.gap(10))
+	box.add_child(Ui.label("by cykbot4", &"CaptionLabel", HORIZONTAL_ALIGNMENT_CENTER))
 
 	var purse := Ui.row(10)
 	purse.add_child(StatPill.new(Icon.Kind.STAR, Icon.GOLD, "%d / %d" % [

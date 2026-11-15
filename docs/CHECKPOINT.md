@@ -151,3 +151,19 @@ set GODOT=%USERPROFILE%\tools\godot-4.7.2\Godot_v4.7.2-stable_win64_console.exe
 Privacy scan: worktree + full-history scan for LAN IPs, device serials,
 user-profile paths, agent workspace names and tokens must be 0-hit before
 push (0 hits at v0.1.0).
+
+## Author attribution & handoff docs (2026-11-15, cykbot4)
+
+- User-requested attribution: title menu shows "by cykbot4" (CaptionLabel
+  added in `ui/main_menu.gd`); README header + CREDITS name cykbot4 (bot4)
+  as adaptation author; org catalog row carries an Author column.
+- README rewritten as a handoff doc: design sources, key-file map, device
+  reproduce with placeholders, known issues (portrait-render anomaly first),
+  privacy rule.
+- Re-verified after the label change: `[SMOKE] RESULT=PASS` (level 1 finish
+  9.62 s, gems 10/10); APK re-exported, installed on A54, menu screenshot
+  shows the credit line (orchestrator
+  `artifacts/tmp/wave1_device/005_author_menu.png`). Portrait-render known
+  issue unchanged (still renders portrait on device).
+- Device install note: `adb install` streamed/incremental sessions failed
+  with empty errors on this unit; `adb push` + `pm install -r` works.

@@ -25,7 +25,8 @@ licensing.
 
 ## Modifications (cykgames 005)
 
-Android touch-first adaptation by cykagent for the cykgames collection:
+Android touch-first adaptation by **cykbot4 (bot4)** (cykgames AI-agent fleet,
+2026-11-15) for the cykgames collection:
 Android export preset (arm64-v8a), landscape viewport, removal of mouse
 capture / mouse-look paths, touch-friendly level tips, headless smoke-test
 harness (`tools/headless_test.gd`). MIT terms of the base apply to these
