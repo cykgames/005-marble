@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!--
+    Godot rasterises SVG with ThorVG, which does not match a browser on
+    clip-path, group opacity or transforms. This icon therefore uses only
+    plain shapes, solid fills and simple gradients, so the engine, the
+    browser and the exported PNG all agree.
+
+    The picture is the game: a marble on a checkered platform floating in
+    the sky.
+  -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B1736"/>
+      <stop offset="0.55" stop-color="#1E4C8F"/>
+      <stop offset="1" stop-color="#5DB7DC"/>
+    </linearGradient>
+    <radialGradient id="ball" cx="0.34" cy="0.28" r="0.8">
+      <stop offset="0" stop-color="#F2F9FF"/>
+      <stop offset="0.3" stop-color="#7CC2FF"/>
+      <stop offset="0.75" stop-color="#1F68CC"/>
+      <stop offset="1" stop-color="#123F8E"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="56" fill="url(#sky)"/>
+
+  <!-- The platform: two side faces, then four checker tiles on top. -->
+  <path d="M30 152 L128 194 L128 220 L30 178 Z" fill="#2F6B3C"/>
+  <path d="M128 194 L226 152 L226 178 L128 220 Z" fill="#245231"/>
+  <path d="M128 110 L177 131 L128 152 L79 131 Z" fill="#9BE07F"/>
+  <path d="M177 131 L226 152 L177 173 L128 152 Z" fill="#6FC360"/>
+  <path d="M79 131 L128 152 L79 173 L30 152 Z" fill="#6FC360"/>
+  <path d="M128 152 L177 173 L128 194 L79 173 Z" fill="#9BE07F"/>
+
+  <!-- The marble, its shadow, and the veins that make it a marble. -->
+  <ellipse cx="128" cy="158" rx="36" ry="13" fill="#3C7F47"/>
+  <circle cx="128" cy="108" r="48" fill="url(#ball)"/>
+  <path d="M86 120 C104 100 128 132 150 110 C158 102 164 104 168 100" fill="none"
+        stroke="#CFE9FF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M98 142 C114 132 126 148 146 138" fill="none"
+        stroke="#9CD0FF" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="110" cy="86" rx="15" ry="9" fill="#FFFFFF"/>
+</svg>

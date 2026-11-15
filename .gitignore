@@ -1,0 +1,32 @@
+### Godot 4 ###
+# Engine-generated cache and imported asset binaries.
+.godot/
+
+# Export configuration can hold absolute paths and signing details.
+export.cfg
+
+# export_presets.cfg IS committed: it carries the Android + Web presets.
+
+# Imported translations (generated from CSV files)
+*.translation
+
+# Mono / C# specific
+.mono/
+data_*/
+
+### Editors ###
+.vscode/
+.idea/
+
+### OS ###
+.DS_Store
+
+### Build output ###
+build/
+dist/
+*.tmp
+
+# Throwaway test/screenshot harnesses (must live under res:// to run)
+/_*.gd
+/_*.tscn
+/_*.uid

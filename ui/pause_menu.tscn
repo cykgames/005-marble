@@ -1,0 +1,102 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://ui/pause_menu.gd" id="1_pause"]
+
+[sub_resource type="Gradient" id="Gradient_rule"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.42, 0.74, 1, 0, 0.42, 0.74, 1, 0.8, 0.42, 0.74, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rule"]
+gradient = SubResource("Gradient_rule")
+width = 256
+height = 4
+
+[node name="PauseMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_pause")
+
+[node name="Dim" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.04, 0.08, 0.7)
+
+[node name="Center" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Column" type="VBoxContainer" parent="Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Kicker" type="Label" parent="Center/Card/Column"]
+layout_mode = 2
+text = "TAKE A BREATH"
+horizontal_alignment = 1
+theme_type_variation = &"CaptionLabel"
+
+[node name="Title" type="Label" parent="Center/Card/Column"]
+layout_mode = 2
+text = "PAUSED"
+horizontal_alignment = 1
+theme_type_variation = &"HeadingLabel"
+
+[node name="Rule" type="TextureRect" parent="Center/Card/Column"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_rule")
+expand_mode = 1
+
+[node name="Gap" type="Control" parent="Center/Card/Column"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Center/Card/Column"]
+custom_minimum_size = Vector2(288, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+
+[node name="ResumeButton" type="Button" parent="Center/Card/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "Resume"
+
+[node name="RestartButton" type="Button" parent="Center/Card/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Restart Level"
+
+[node name="LevelsButton" type="Button" parent="Center/Card/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Levels"
+
+[node name="MenuButton" type="Button" parent="Center/Card/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"GhostButton"
+text = "Main Menu"

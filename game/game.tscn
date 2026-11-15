@@ -1,0 +1,77 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://game/game.gd" id="1_game"]
+[ext_resource type="Environment" path="res://resources/environments/day_sky.tres" id="2_environment"]
+[ext_resource type="Script" path="res://game/game_camera.gd" id="3_camera"]
+[ext_resource type="PackedScene" path="res://player/marble.tscn" id="4_marble"]
+[ext_resource type="Script" path="res://effects/burst_emitter.gd" id="5_bursts"]
+[ext_resource type="Script" path="res://ui/hud.gd" id="6_hud"]
+[ext_resource type="Script" path="res://ui/touch_controls.gd" id="7_touch"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="8_pause"]
+[ext_resource type="Script" path="res://ui/results_card.gd" id="9_results"]
+[ext_resource type="Script" path="res://game/cheats.gd" id="10_cheats"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_game")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8192, 0.4394, -0.3687, 0, 0.6428, 0.766, 0.5736, -0.6275, 0.5266, 0, 20, 0)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.85
+shadow_enabled = true
+directional_shadow_max_distance = 90.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+fov = 70.0
+far = 600.0
+script = ExtResource("3_camera")
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="Marble" parent="." instance=ExtResource("4_marble")]
+
+[node name="BurstEmitter" type="Node3D" parent="."]
+script = ExtResource("5_bursts")
+burst_count = 6
+particle_amount = 18
+
+[node name="Cheats" type="Node" parent="."]
+script = ExtResource("10_cheats")
+
+[node name="HUDLayer" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="Hud" type="Control" parent="HUDLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("6_hud")
+
+[node name="TouchControls" type="Control" parent="HUDLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("7_touch")
+
+[node name="ResultsLayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="ResultsCard" type="Control" parent="ResultsLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("9_results")
+
+[node name="PauseLayer" type="CanvasLayer" parent="."]
+layer = 3
+
+[node name="PauseMenu" parent="PauseLayer" instance=ExtResource("8_pause")]
+visible = false
