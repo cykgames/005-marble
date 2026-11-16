@@ -36,6 +36,8 @@ func _ready() -> void:
 	keys.add_child(Ui.key_hint(["ESC"], "RESUME"))
 	keys.add_child(Ui.key_hint(["R"], "RESTART"))
 	stack.add_child(keys)
+	# Touch devices resume/restart with the card buttons, not ESC/R.
+	keys.visible = not DisplayServer.has_feature(DisplayServer.FEATURE_TOUCHSCREEN)
 	_hint = keys
 	for part: CanvasItem in [_dim, _hint, _center]:
 		part.modulate.a = 0.0

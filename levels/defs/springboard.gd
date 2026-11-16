@@ -21,7 +21,8 @@ func build(b: LevelBuilder) -> void:
 	b.secret_ledge(Vector3(-7, 9.4, -39))
 	b.floor(0, -3, 10, 10)
 	b.power_up(double_jump, Vector3(0, 0, -4))
-	b.tip(Vector3(0, 0, -2), "With DOUBLE JUMP running, press SPACE again in mid-air.")
+	b.tip_touch(Vector3(0, 0, -2), "With DOUBLE JUMP running, tap JUMP again in mid-air.",
+		"With DOUBLE JUMP running, press SPACE again in mid-air.")
 	b.floor(0, -13, 8, 8, 2.2, floor_kind, 3.2)
 	b.gem(Vector3(-2, 2.2, -13))
 	b.gem(Vector3(2, 2.2, -13))

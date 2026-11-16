@@ -462,6 +462,17 @@ func tip(at: Vector3, text: String, radius: float = 3.0) -> TriggerZone:
 	return zone
 
 
+## Same as [method tip] with touch-first wording: real touchscreens get
+## [param touch_text], desktop keeps the keyboard wording. Uses the hardware
+## feature, not is_touchscreen_available(): the latter is also true on
+## desktop because pointing/emulate_touch_from_mouse is enabled.
+func tip_touch(at: Vector3, touch_text: String, desktop_text: String,
+		radius: float = 3.0) -> TriggerZone:
+	var text := touch_text if DisplayServer.has_feature(
+		DisplayServer.FEATURE_TOUCHSCREEN) else desktop_text
+	return tip(at, text, radius)
+
+
 # --- Internals --------------------------------------------------------------
 
 

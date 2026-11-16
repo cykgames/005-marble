@@ -22,7 +22,8 @@ func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 13), 0)
 	# The secret diamond: on the ground behind the tower, where the climb never takes you.
 	b.secret(Vector3(0, 0, -13))
-	b.tip(Vector3(0, 0, 13), "Up. Hold SPACE and keep turning with the tower.")
+	b.tip_touch(Vector3(0, 0, 13), "Up. Hold JUMP and keep turning with the tower.",
+		"Up. Hold SPACE and keep turning with the tower.")
 	b.floor(0, 0, 30, 30)
 	var top := RISE * STEPS
 	b.box(Vector3(0, top / 2.0 - 0.5, 0), Vector3(5, top - 1.0, 5), LevelBuilder.Surface.WALL)

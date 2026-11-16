@@ -3,11 +3,22 @@ extends Control
 
 const BUTTON_WIDTH := 340.0
 const BUTTON_GAP := 12
+## Touch-target floor for portrait phones: 150 design px ≈ 127 device px at
+## 1080 wide (base 1280x720 + stretch "expand" => scale 0.84375). The fleet
+## standard is >= 120 device px (48 dp on the A54).
+const TOUCH_BUTTON_HEIGHT := 150.0
 
 
 func _ready() -> void:
+	var portrait := get_viewport_rect().size.y > get_viewport_rect().size.x
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	if portrait:
+		# Drop the menu into the lower two thirds so the buttons sit in the
+		# thumb zone instead of mid-screen. Landscape keeps the old centering
+		# (tall buttons would overflow a 720-high window).
+		center.anchor_top = 0.30
+		center.anchor_bottom = 0.94
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 	var box := Ui.column(4)
@@ -28,6 +39,11 @@ func _ready() -> void:
 	var levels := Ui.button("Levels", half, Icon.Kind.LEVELS)
 	var shop := Ui.button("Shop", half, Icon.Kind.SHOP)
 	var quit := Ui.button("Quit", BUTTON_WIDTH, Icon.Kind.QUIT, &"GhostButton")
+	if portrait:
+		# Whole button rect is the tap target; make it thumb-sized.
+		for b: Button in [play, levels, shop, quit]:
+			b.custom_minimum_size.y = TOUCH_BUTTON_HEIGHT
+			b.add_theme_font_size_override("font_size", 24)
 	play.pressed.connect(SceneManager.continue_game)
 	levels.pressed.connect(SceneManager.goto_level_select)
 	shop.pressed.connect(SceneManager.goto_shop)
@@ -55,13 +71,20 @@ func _ready() -> void:
 	add_child(purse)
 	Ui.pin(purse, Control.PRESET_TOP_RIGHT, Vector2(24, 20))
 
-	var keys := Ui.row(34)
-	keys.add_child(Ui.key_hint(["W", "A", "S", "D"], "ROLL"))
-	keys.add_child(Ui.key_hint(["SPACE"], "JUMP"))
-	keys.add_child(Ui.key_hint(["Q", "E"], "CAMERA"))
-	keys.add_child(Ui.key_hint(["ESC"], "PAUSE"))
-	add_child(keys)
-	Ui.pin(keys, Control.PRESET_CENTER_BOTTOM, Vector2(0, 30))
+	if DisplayServer.is_touchscreen_available():
+		# Touch-first wording replaces the keyboard hint row on phones.
+		var hint := Ui.label("Drag the left side to roll · Tap JUMP to jump",
+			&"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
+		add_child(hint)
+		Ui.pin(hint, Control.PRESET_CENTER_BOTTOM, Vector2(0, 30))
+	else:
+		var keys := Ui.row(34)
+		keys.add_child(Ui.key_hint(["W", "A", "S", "D"], "ROLL"))
+		keys.add_child(Ui.key_hint(["SPACE"], "JUMP"))
+		keys.add_child(Ui.key_hint(["Q", "E"], "CAMERA"))
+		keys.add_child(Ui.key_hint(["ESC"], "PAUSE"))
+		add_child(keys)
+		Ui.pin(keys, Control.PRESET_CENTER_BOTTOM, Vector2(0, 30))
 
 	Ui.cascade([play, pair, quit], 0.1)
 	# Makes the menu playable with the keyboard alone.

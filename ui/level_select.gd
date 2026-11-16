@@ -80,6 +80,8 @@ func _ready() -> void:
 	footer.add_child(Ui.spring())
 	var hint := Ui.key_hint(["Q", "E"], "CHANGE COURSE")
 	hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	# Touch pages courses with the arrow buttons, not Q/E.
+	hint.visible = not DisplayServer.has_feature(DisplayServer.FEATURE_TOUCHSCREEN)
 	footer.add_child(hint)
 	footer.add_child(Ui.spring())
 	_course_secrets = StatPill.new(Icon.Kind.DIAMOND, Icon.DIAMOND_WHITE)

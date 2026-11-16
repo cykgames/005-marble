@@ -79,6 +79,8 @@ func _ready() -> void:
 	box.add_child(buttons)
 
 	var keys := Ui.key_hint(["A", "D"], "BROWSE")
+	# Touch browses with the skin chips, not A/D.
+	keys.visible = not DisplayServer.has_feature(DisplayServer.FEATURE_TOUCHSCREEN)
 	add_child(keys)
 	Ui.pin(keys, Control.PRESET_CENTER_BOTTOM, Vector2(0, 16))
 

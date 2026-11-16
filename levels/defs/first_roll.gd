@@ -15,14 +15,16 @@ func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 1))
 	# The secret diamond: on a ledge behind the start, over the kerb.
 	b.secret_ledge(Vector3(0, -2.5, 7.5))
-	b.tip(Vector3(0, 0, 1), "Drag on the left half of the screen to roll. WASD works too.")
+	b.tip_touch(Vector3(0, 0, 1), "Drag on the left half of the screen to roll.",
+		"Drag on the left half of the screen to roll. WASD works too.")
 	b.floor(0, -7, 8, 22)
 	b.wall(Vector3(-3.8, 0, 3.8), Vector3(3.8, 0, 3.8))
 	b.wall(Vector3(-3.8, 0, 3.8), Vector3(-3.8, 0, -25.8))
 	b.wall(Vector3(3.8, 0, 3.8), Vector3(3.8, 0, -18))
 	b.gem_line(Vector3(0, 0, -4), Vector3(0, 0, -16), 4)
 
-	b.tip(Vector3(0, 0, -15), "The camera follows you on its own. Q and E turn it.", 4.0)
+	b.tip_touch(Vector3(0, 0, -15), "The camera follows you on its own.",
+		"The camera follows you on its own. Q and E turn it.", 4.0)
 	b.floor(8, -22, 24, 8)
 	b.wall(Vector3(-3.8, 0, -25.8), Vector3(20, 0, -25.8))
 	b.wall(Vector3(3.8, 0, -18.2), Vector3(20, 0, -18.2))
