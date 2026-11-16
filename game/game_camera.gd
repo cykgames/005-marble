@@ -28,7 +28,11 @@ extends Camera3D
 @export_range(0.0, 180.0, 1.0, "radians_as_degrees") var follow_cone: float = deg_to_rad(110.0)
 
 @export_group("Feel")
-@export var base_fov: float = 70.0
+## Portrait pass: the phone screen is tall and narrow, so a 70 deg vertical FOV
+## only left ~36 deg of horizontal view - corners appeared far too late. 88 deg
+## buys ~48 deg horizontally (turn anticipation) at the cost of a mild
+## wide-angle look.
+@export var base_fov: float = 88.0
 @export var speed_fov: float = 14.0
 @export var max_shake := Vector3(0.35, 0.25, 0.12)
 @export var shake_decay: float = 2.6
