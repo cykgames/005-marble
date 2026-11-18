@@ -67,9 +67,11 @@ func _apply_stick() -> void:
 
 
 func _action_button(text: String, action: StringName) -> Button:
-	var button := Ui.button(text, 144.0)
-	# 48dp touch target: 144 design units * (1080 / 1280) = 121.5 device px.
-	button.custom_minimum_size.y = 144.0
+	var button := Ui.button(text, 168.0)
+	# >=48dp touch target: 168 design units * (1080 / 1280) = 141.75 device px
+	# = 50.4dp at density 450. The old 144 gave 121.5px = 43.2dp (the previous
+	# "48dp" comment was wrong); bumped per fun-review H3.
+	button.custom_minimum_size.y = 168.0
 	button.focus_mode = Control.FOCUS_NONE
 	button.button_down.connect(Input.action_press.bind(action))
 	button.button_up.connect(Input.action_release.bind(action))
