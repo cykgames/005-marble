@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Marble"
+config/name="005 Marble Runner"
 config/description="Roll a torque-driven marble through sixty floating courses. Touch-first Android build (cykgames 005)."
 config/version="0.1.1"
 run/main_scene="res://ui/main_menu.tscn"
