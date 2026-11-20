@@ -25,6 +25,12 @@ var _tween: Tween
 
 func _ready() -> void:
 	hide()
+	# Godot quits on Android back while SceneTree.quit_on_go_back is true
+	# (the default). set_input_as_handled does NOT suppress it -- 4.7's
+	# SceneTree::_main_window_go_back checks only the flag. Own the flag
+	# while this menu exists: in-game back pauses/resumes below, and the
+	# menus keep the default back-to-quit once this scene is left.
+	get_tree().quit_on_go_back = false
 	Ui.apply_phone_theme(self)
 	if DisplayServer.is_touchscreen_available() \
 			and get_viewport_rect().size.y > get_viewport_rect().size.x:
@@ -60,8 +66,8 @@ func _ready() -> void:
 
 ## Alt-tabbing mid-level pauses, so the clock does not run while the window is
 ## in the background. The Android back button pauses too (and resumes from
-## the pause card) instead of quitting the app mid-run; marking the input
-## handled is what suppresses Godot's default quit-on-back.
+## the pause card) instead of quitting mid-run; quit_on_go_back is held false
+## for as long as this menu is in the tree (see _ready / _exit_tree).
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		if is_node_ready() and is_inside_tree():
@@ -69,13 +75,16 @@ func _notification(what: int) -> void:
 				resume()
 			else:
 				pause()
-			get_viewport().set_input_as_handled()
 		return
 	if what != NOTIFICATION_APPLICATION_FOCUS_OUT \
 			and what != NOTIFICATION_WM_WINDOW_FOCUS_OUT:
 		return
 	if is_node_ready() and not _open and is_inside_tree():
 		pause()
+
+
+func _exit_tree() -> void:
+	get_tree().quit_on_go_back = true
 
 
 func _unhandled_input(event: InputEvent) -> void:

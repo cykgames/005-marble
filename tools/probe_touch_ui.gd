@@ -8,6 +8,8 @@ extends Node
 ##      and the clock, face inside the hit; pressing it drives the real
 ##      "pause" action into the real PauseMenu (pause/resume round trip),
 ##      and a held stick/jump is released when the tree pauses.
+##   4. Android back: PauseMenu owns quit_on_go_back while in the tree
+##      (restored on exit), and the back notification toggles pause.
 ## Run: godot --headless --path . res://tools/probe_touch_ui.tscn
 
 func _ready() -> void:
@@ -107,9 +109,24 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if get_tree().paused:
 		failures.append("pause action toggle did not resume")
+	# Android back: the menu owns quit_on_go_back while present (4.7 quits
+	# on back purely on that flag -- set_input_as_handled cannot stop it),
+	# and the back notification toggles pause like the chip does.
+	if get_tree().quit_on_go_back:
+		failures.append("quit_on_go_back not owned by pause menu")
+	pm.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
+	await get_tree().process_frame
+	if not get_tree().paused:
+		failures.append("back notification did not pause")
+	pm.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
+	await get_tree().process_frame
+	if get_tree().paused:
+		failures.append("back notification did not resume")
 
 	for c in get_children():
 		c.free()
+	if not get_tree().quit_on_go_back:
+		failures.append("quit_on_go_back not restored after pause menu left")
 	if failures.is_empty():
 		print("PROBE PASS: JUMP >= 120px both axes at 1080 wide; desktop tips unchanged; pause chip wired")
 		get_tree().quit(0)
