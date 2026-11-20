@@ -167,3 +167,31 @@ push (0 hits at v0.1.0).
   issue unchanged (still renders portrait on device).
 - Device install note: `adb install` streamed/incremental sessions failed
   with empty errors on this unit; `adb push` + `pm install -r` works.
+
+## Portrait phone readability pass (2026-11-20, cykbot9)
+
+- User report: JUMP too small to play; main-menu button text ant-sized.
+- Root cause: theme sized for a 1280x720 desktop window; portrait stretch
+  0.84375 at 450dpi makes 1 design unit = 0.3dp (Button 22 = 6.6dp, JUMP
+  168 = 50dp). Fix: Ui.phone_theme() (project theme duplicate with phone
+  font sizes) applied per screen on touch+portrait only; JUMP 168->300
+  design (253px = 90dp, same league as 002 J); menu buttons 480x160;
+  level grid 2 cols of 440x170 cards + 160 arrows; shop card 560 wide +
+  autowrap description + 76 chips; pause/results buttons 160 tall; HUD
+  pill offsets/bars rescaled; decorate() left content margin 64 in
+  portrait so long labels clear the icon (v0.1.6).
+- Versions: v0.1.5 (105) readability pass, v0.1.6 (106) icon-margin fix.
+  Commits 2e0fcfc + f608369, bumps 26936b6 + 914f727.
+- Verified on A54 (1080x2340@450, same panel as A57): menu/levels/shop/
+  gameplay/pause screenshots readable, no clipping; JUMP hold-press shows
+  pressed style and marble airborne with separated shadow; headless gate
+  PASS on both releases; probe_touch_ui PASS (JUMP 253px both axes, tip
+  pill clear of JUMP). 005 has no [CYKTEST] channel so harness reports
+  touch_pass=false (pixel liveness only); pressed-state + airborne marble
+  is the touch evidence for this pass.
+- A57: v0.1.5 installed; v0.1.6 pending (device locked/dozing, wireless
+  adb connection refused). Install when next awake.
+- Known gap found, NOT fixed this pass: no touch pause button in-game
+  (pause = ESC/P/gamepad Start only; Android back quits). Follow-up candidate.
+- Evidence: cykbot9 workspace artifacts/tmp/ui005_20261120/*.png and
+  artifacts/release_verify_20261120_214955 / _220754.
