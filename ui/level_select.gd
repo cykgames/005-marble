@@ -8,11 +8,21 @@ extends Control
 const COLUMNS := 4
 const CARD_SIZE := Vector2(232.0, 118.0)
 const GRID_GAP := 12.0
+## Portrait phones: two wide cards a row instead of four small ones, so the
+## phone-theme labels (CardTitle 34, ChipLabel 28) fit their boxes and the
+## cards stay thumb-sized. 2 * 440 + 12 + 2 * 160 arrows + 32 gaps = 1244,
+## inside the 1280 design width.
+const PORTRAIT_COLUMNS := 2
+const PORTRAIT_CARD_SIZE := Vector2(440.0, 170.0)
+const PORTRAIT_ARROW_SIDE := 160.0
 const LOCKED_TINT := Color(0.45, 0.5, 0.6)
 ## How far the grid slides when the page turns.
 const TURN_DISTANCE := 60.0
 
 var _page: int = -1
+var _portrait: bool = false
+var _columns: int = COLUMNS
+var _card_size: Vector2 = CARD_SIZE
 var _grid: GridContainer
 var _stage: Control
 var _kicker: Label
@@ -27,6 +37,12 @@ var _turn_tween: Tween
 
 
 func _ready() -> void:
+	_portrait = DisplayServer.is_touchscreen_available() \
+		and get_viewport_rect().size.y > get_viewport_rect().size.x
+	if _portrait:
+		_columns = PORTRAIT_COLUMNS
+		_card_size = PORTRAIT_CARD_SIZE
+	Ui.apply_phone_theme(self)
 	add_child(Ui.shade(Color(0.03, 0.06, 0.12, 0.66)))
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -43,13 +59,13 @@ func _ready() -> void:
 	box.add_child(_dots)
 	box.add_child(Ui.gap(18))
 
-	var rows := ceili(float(LevelCatalog.PAGE_SIZE) / COLUMNS)
+	var rows := ceili(float(LevelCatalog.PAGE_SIZE) / _columns)
 	var grid_size := Vector2(
-		COLUMNS * CARD_SIZE.x + (COLUMNS - 1) * GRID_GAP,
-		rows * CARD_SIZE.y + (rows - 1) * GRID_GAP)
+		_columns * _card_size.x + (_columns - 1) * GRID_GAP,
+		rows * _card_size.y + (rows - 1) * GRID_GAP)
 	var middle := Ui.row(16)
-	_previous = Ui.round_button(Icon.Kind.LEFT)
-	_next = Ui.round_button(Icon.Kind.RIGHT)
+	_previous = Ui.round_button(Icon.Kind.LEFT, PORTRAIT_ARROW_SIDE if _portrait else 60.0)
+	_next = Ui.round_button(Icon.Kind.RIGHT, PORTRAIT_ARROW_SIDE if _portrait else 60.0)
 	_previous.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_next.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_previous.pressed.connect(_turn_page.bind(-1))
@@ -61,7 +77,7 @@ func _ready() -> void:
 	_stage.custom_minimum_size = grid_size
 	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_grid = GridContainer.new()
-	_grid.columns = COLUMNS
+	_grid.columns = _columns
 	_grid.add_theme_constant_override(&"h_separation", int(GRID_GAP))
 	_grid.add_theme_constant_override(&"v_separation", int(GRID_GAP))
 	_stage.add_child(_grid)
@@ -75,6 +91,8 @@ func _ready() -> void:
 	footer.custom_minimum_size.x = grid_size.x
 	footer.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_back = Ui.button("Back", 190.0, Icon.Kind.BACK)
+	if _portrait:
+		_back.custom_minimum_size.y = 160.0
 	_back.pressed.connect(SceneManager.goto_main_menu)
 	footer.add_child(_back)
 	footer.add_child(Ui.spring())
@@ -179,7 +197,7 @@ func _build_card(index: int) -> Button:
 	var best := GameState.best_time(level)
 	var card := Button.new()
 	card.theme_type_variation = &"LevelCard"
-	card.custom_minimum_size = CARD_SIZE
+	card.custom_minimum_size = _card_size
 	card.disabled = not open
 	card.pressed.connect(SceneManager.play_level.bind(index))
 
@@ -189,12 +207,12 @@ func _build_card(index: int) -> Button:
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.self_modulate = level.biome.sky_top_color.lerp(level.biome.ground_color, 0.25) \
 		if open else LOCKED_TINT
-	badge.position = Vector2(14.0, 13.0)
-	badge.size = Vector2(54.0, 53.0)
+	badge.position = Vector2(16.0, 16.0) if _portrait else Vector2(14.0, 13.0)
+	badge.size = Vector2(76.0, 76.0) if _portrait else Vector2(54.0, 53.0)
 	if open:
 		badge.add_child(Ui.label("%d" % (index + 1), &"BadgeLabel", HORIZONTAL_ALIGNMENT_CENTER))
 	else:
-		var lock := Icon.new(Icon.Kind.LOCK, 22.0)
+		var lock := Icon.new(Icon.Kind.LOCK, 30.0 if _portrait else 22.0)
 		lock.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		lock.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		badge.add_child(lock)
@@ -202,8 +220,9 @@ func _build_card(index: int) -> Button:
 
 	var title := Ui.label(level.title, &"CardTitle")
 	title.clip_text = true
-	title.position = Vector2(80.0, 12.0)
-	title.size = Vector2(CARD_SIZE.x - 92.0, 26.0)
+	title.position = Vector2(108.0, 16.0) if _portrait else Vector2(80.0, 12.0)
+	title.size = Vector2(_card_size.x - 122.0, 44.0) if _portrait \
+		else Vector2(CARD_SIZE.x - 92.0, 26.0)
 	card.add_child(title)
 	var conditions := level.conditions()
 	var place := Ui.label(
@@ -211,16 +230,18 @@ func _build_card(index: int) -> Button:
 		&"ChipLabel")
 	place.modulate = Color(0.75, 0.88, 1.0, 0.85)
 	place.clip_text = true
-	place.position = Vector2(80.0, 39.0)
-	place.size = Vector2(CARD_SIZE.x - 92.0, 18.0)
+	place.position = Vector2(108.0, 64.0) if _portrait else Vector2(80.0, 39.0)
+	place.size = Vector2(_card_size.x - 122.0, 36.0) if _portrait \
+		else Vector2(CARD_SIZE.x - 92.0, 18.0)
 	card.add_child(place)
 
-	var stars := StarRow.new(20.0, GameState.stars(level))
-	stars.position = Vector2(14.0, 80.0)
+	var stars := StarRow.new(30.0 if _portrait else 20.0, GameState.stars(level))
+	stars.position = Vector2(16.0, 116.0) if _portrait else Vector2(14.0, 80.0)
 	card.add_child(stars)
 	# The secret diamond, after the stars: lit once it has been brought home.
-	var secret := Icon.new(Icon.Kind.DIAMOND, 19.0, Icon.DIAMOND_WHITE)
-	secret.position = Vector2(14.0 + stars.custom_minimum_size.x + 8.0, 80.5)
+	var secret := Icon.new(Icon.Kind.DIAMOND, 28.0 if _portrait else 19.0, Icon.DIAMOND_WHITE)
+	secret.position = Vector2(16.0 + stars.custom_minimum_size.x + 10.0, 116.0) if _portrait \
+		else Vector2(14.0 + stars.custom_minimum_size.x + 8.0, 80.5)
 	if not GameState.has_secret(level):
 		secret.color = StarRow.UNLIT
 	card.add_child(secret)
@@ -235,7 +256,8 @@ func _build_card(index: int) -> Button:
 		status = Ui.label("LOCKED" if not open else (
 			LevelDef.format_time(best) if best >= 0.0 else "NEW"), &"CaptionLabel")
 	card.add_child(status)
-	Ui.pin(status, Control.PRESET_BOTTOM_RIGHT, Vector2(14.0, 17.0))
+	Ui.pin(status, Control.PRESET_BOTTOM_RIGHT,
+		Vector2(16.0, 16.0) if _portrait else Vector2(14.0, 17.0))
 	if not open:
 		for child: Control in [title, place, stars, secret, status]:
 			child.modulate.a = 0.45

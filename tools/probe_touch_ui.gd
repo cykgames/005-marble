@@ -49,8 +49,9 @@ func _ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var tip_rect: Rect2 = hud._tip_panel.get_global_rect()
-	var btn_rect := Rect2(Vector2(1280.0 - 30.0 - 144.0, 2773.0 - 120.0 - 144.0),
-		Vector2(144, 144))
+	var jump_size := button.custom_minimum_size
+	var btn_rect := Rect2(
+		Vector2(1280.0 - 30.0 - jump_size.x, 2773.0 - 120.0 - jump_size.y), jump_size)
 	print("tip rect=%s jump rect=%s" % [str(tip_rect), str(btn_rect)])
 	if tip_rect.intersects(btn_rect):
 		failures.append("tip pill overlaps JUMP button")

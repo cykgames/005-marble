@@ -3,14 +3,17 @@ extends Control
 
 const BUTTON_WIDTH := 340.0
 const BUTTON_GAP := 12
-## Touch-target floor for portrait phones: 150 design px ≈ 127 device px at
-## 1080 wide (base 1280x720 + stretch "expand" => scale 0.84375). The fleet
-## standard is >= 120 device px (48 dp on the A54).
-const TOUCH_BUTTON_HEIGHT := 150.0
+## Touch-target floor for portrait phones: 160 design px ≈ 135 device px at
+## 1080 wide (base 1280x720 + stretch "expand" => scale 0.84375) = 48dp at
+## density 450. Fonts come from the phone theme, not the desktop theme.
+const TOUCH_BUTTON_HEIGHT := 160.0
+## Wider face so the phone-theme label ("Continue   Level N") fits on one line.
+const PORTRAIT_BUTTON_WIDTH := 480.0
 
 
 func _ready() -> void:
 	var portrait := get_viewport_rect().size.y > get_viewport_rect().size.x
+	Ui.apply_phone_theme(self)
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	if portrait:
@@ -33,17 +36,19 @@ func _ready() -> void:
 
 	# "Play" always means the next thing worth playing; "Levels" is for choosing.
 	var next := GameState.next_unbeaten()
+	var button_width := PORTRAIT_BUTTON_WIDTH if portrait else BUTTON_WIDTH
 	var play := Ui.button("Play" if next == 0 else "Continue   Level %d" % (next + 1),
-		BUTTON_WIDTH, Icon.Kind.PLAY, &"PrimaryButton")
-	var half := (BUTTON_WIDTH - BUTTON_GAP) / 2.0
+		button_width, Icon.Kind.PLAY, &"PrimaryButton")
+	var half := (button_width - BUTTON_GAP) / 2.0
 	var levels := Ui.button("Levels", half, Icon.Kind.LEVELS)
 	var shop := Ui.button("Shop", half, Icon.Kind.SHOP)
-	var quit := Ui.button("Quit", BUTTON_WIDTH, Icon.Kind.QUIT, &"GhostButton")
+	var quit := Ui.button("Quit", button_width, Icon.Kind.QUIT, &"GhostButton")
 	if portrait:
-		# Whole button rect is the tap target; make it thumb-sized.
+		# Whole button rect is the tap target; make it thumb-sized. Label fonts
+		# come from the phone theme applied above (the old 24px override read
+		# as ~7dp on a 450dpi phone -- ant-sized).
 		for b: Button in [play, levels, shop, quit]:
 			b.custom_minimum_size.y = TOUCH_BUTTON_HEIGHT
-			b.add_theme_font_size_override("font_size", 24)
 	play.pressed.connect(SceneManager.continue_game)
 	levels.pressed.connect(SceneManager.goto_level_select)
 	shop.pressed.connect(SceneManager.goto_shop)

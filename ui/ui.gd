@@ -12,6 +12,56 @@ extends RefCounted
 const ENTER_SECONDS := 0.24
 const STAGGER_SECONDS := 0.045
 
+const BASE_THEME := preload("res://resources/theme/marble_runner_theme.tres")
+
+## Phone-portrait font sizes, in design units. The project theme is sized for
+## a 1280x720 desktop window; on a portrait phone the width stretch scales by
+## 1080/1280 = 0.84375, so at density 450 one design unit is only 0.3dp and
+## the desktop sizes (Button 22 = 6.6dp) read as ants. These bring body text
+## to ~12-14dp while keeping display faces inside their boxes.
+const PHONE_FONT_SIZES := {
+	&"Button": 42,
+	&"PrimaryButton": 46,
+	&"GhostButton": 38,
+	&"CaptionLabel": 30,
+	&"HintLabel": 34,
+	&"ChipLabel": 28,
+	&"TitleLabel": 100,
+	&"HeadingLabel": 68,
+	&"AccentLabel": 44,
+	&"ValueLabel": 56,
+	&"CardTitle": 34,
+	&"BadgeLabel": 40,
+	&"TagLabel": 24,
+	&"TimerLabel": 60,
+	&"ScoreLabel": 88,
+}
+
+static var _phone_theme: Theme
+
+
+## The project theme with phone-portrait font sizes. Built once, shared.
+static func phone_theme() -> Theme:
+	if _phone_theme == null:
+		var theme := BASE_THEME.duplicate() as Theme
+		theme.default_font_size = 38
+		for type_name: StringName in PHONE_FONT_SIZES:
+			theme.set_font_size(&"font_size", type_name, PHONE_FONT_SIZES[type_name])
+		_phone_theme = theme
+	return _phone_theme
+
+
+## Gives [param control] the phone theme on a touchscreen in portrait. Call at
+## the top of a screen's [method _ready], before building children, so anything
+## that measures font metrics (ClockLabel) sees the final sizes. Landscape and
+## non-touch builds keep the project theme untouched.
+static func apply_phone_theme(control: Control) -> void:
+	if not DisplayServer.is_touchscreen_available():
+		return
+	var rect := control.get_viewport_rect().size
+	if rect.y > rect.x:
+		control.theme = phone_theme()
+
 
 static func label(text: String, variation: StringName = &"",
 		alignment: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT) -> Label:

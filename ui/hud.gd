@@ -38,11 +38,17 @@ var _effect_rows: Dictionary[int, Control] = {}
 var _effect_bars: Dictionary[int, ProgressBar] = {}
 var _tip_tween: Tween
 var _banner_tween: Tween
+var _portrait: bool = false
 
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_portrait = DisplayServer.is_touchscreen_available() \
+		and get_viewport_rect().size.y > get_viewport_rect().size.x
+	# Before building children: ClockLabel measures its digit cells from the
+	# theme font at _ready, so it must see the final (phone) sizes.
+	Ui.apply_phone_theme(self)
 	_build_gems()
 	_build_clock()
 	_build_effects()
@@ -69,7 +75,8 @@ func setup(level_number: int, level: LevelDef, gem_total: int, best_time: float)
 	_environment.modulate = Color(0.75, 0.9, 1.0)
 	_environment_pill.add_child(_environment)
 	add_child(_environment_pill)
-	Ui.pin(_environment_pill, Control.PRESET_TOP_RIGHT, Vector2(20, 50))
+	Ui.pin(_environment_pill, Control.PRESET_TOP_RIGHT,
+		Vector2(20, 72) if _portrait else Vector2(20, 50))
 
 
 func set_gems(collected: int, total: int) -> void:
@@ -172,7 +179,7 @@ func _build_gems() -> void:
 	box.add_child(caption)
 	_gems_value = Ui.label("0 / 0", &"AccentLabel", HORIZONTAL_ALIGNMENT_RIGHT)
 	_gems_value.add_theme_color_override(&"font_color", Color.WHITE)
-	_gems_value.custom_minimum_size.x = 78.0
+	_gems_value.custom_minimum_size.x = 120.0 if _portrait else 78.0
 	box.add_child(_gems_value)
 	# The level's secret diamond: a faint outline until it is in hand. It has its
 	# place in the pill from the start, so finding it moves nothing.
@@ -197,13 +204,14 @@ func _build_gems() -> void:
 	keys.add_child(_keys_value)
 	_keys_pill.add_child(keys)
 	add_child(_keys_pill)
-	Ui.pin(_keys_pill, Control.PRESET_TOP_LEFT, Vector2(20, 60))
+	Ui.pin(_keys_pill, Control.PRESET_TOP_LEFT,
+		Vector2(20, 88) if _portrait else Vector2(20, 60))
 
 
 func _build_clock() -> void:
 	var box := Ui.column(-5)
 	_clock = ClockLabel.new(&"TimerLabel")
-	_clock.custom_minimum_size.x = 220.0
+	_clock.custom_minimum_size.x = 280.0 if _portrait else 220.0
 	box.add_child(_clock)
 	_best = Ui.label("", &"ChipLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	_best.add_theme_constant_override(&"outline_size", 4)
@@ -220,7 +228,7 @@ func _build_effects() -> void:
 		var bar := ProgressBar.new()
 		bar.max_value = 1.0
 		bar.show_percentage = false
-		bar.custom_minimum_size = Vector2(150.0, 7.0)
+		bar.custom_minimum_size = Vector2(220.0, 10.0) if _portrait else Vector2(150.0, 7.0)
 		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bar.modulate = PowerUps.color(kind)
 		entry.add_child(bar)

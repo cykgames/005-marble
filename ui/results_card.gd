@@ -21,6 +21,9 @@ var _center: Control
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	hide()
+	var portrait := DisplayServer.is_touchscreen_available() \
+		and get_viewport_rect().size.y > get_viewport_rect().size.x
+	Ui.apply_phone_theme(self)
 	_dim = Ui.shade(Color(0.02, 0.04, 0.08, 0.6))
 	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_dim)
@@ -35,9 +38,9 @@ func _ready() -> void:
 
 	box.add_child(Ui.label("LEVEL COMPLETE", &"CaptionLabel", HORIZONTAL_ALIGNMENT_CENTER))
 	_title = Ui.label("", &"HeadingLabel", HORIZONTAL_ALIGNMENT_CENTER)
-	_title.custom_minimum_size.x = 420.0
+	_title.custom_minimum_size.x = 520.0 if portrait else 420.0
 	box.add_child(_title)
-	_stars = StarRow.new(44.0)
+	_stars = StarRow.new(60.0 if portrait else 44.0)
 	_stars.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(Ui.gap(6))
 	box.add_child(_stars)
@@ -57,6 +60,9 @@ func _ready() -> void:
 	_next = Ui.button("Next Level", 340.0, Icon.Kind.NEXT, &"PrimaryButton")
 	_retry = Ui.button("Retry", 164.0, Icon.Kind.RESTART)
 	var levels := Ui.button("Levels", 164.0, Icon.Kind.LEVELS)
+	if portrait:
+		for b: Button in [_next, _retry, levels]:
+			b.custom_minimum_size.y = 160.0
 	_next.pressed.connect(next_pressed.emit)
 	_retry.pressed.connect(retry_pressed.emit)
 	levels.pressed.connect(levels_pressed.emit)

@@ -25,6 +25,12 @@ var _tween: Tween
 
 func _ready() -> void:
 	hide()
+	Ui.apply_phone_theme(self)
+	if DisplayServer.is_touchscreen_available() \
+			and get_viewport_rect().size.y > get_viewport_rect().size.x:
+		# Thumb-sized tap targets; fonts come from the phone theme.
+		for b: Button in [_resume_button, _restart_button, _levels_button, _menu_button]:
+			b.custom_minimum_size.y = 160.0
 	# The key hints ride under the card in one column with it, so they sit
 	# just below it at any window size and can never land on top of it.
 	var stack := Ui.column(18)

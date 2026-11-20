@@ -22,6 +22,7 @@ func _ready() -> void:
 	set_process_input(visible)
 	if not visible:
 		return
+	Ui.apply_phone_theme(self)
 	var buttons := Ui.column(14)
 	buttons.mouse_filter = Control.MOUSE_FILTER_PASS
 	buttons.add_child(_action_button("JUMP", &"jump"))
@@ -67,11 +68,12 @@ func _apply_stick() -> void:
 
 
 func _action_button(text: String, action: StringName) -> Button:
-	var button := Ui.button(text, 168.0)
-	# >=48dp touch target: 168 design units * (1080 / 1280) = 141.75 device px
-	# = 50.4dp at density 450. The old 144 gave 121.5px = 43.2dp (the previous
-	# "48dp" comment was wrong); bumped per fun-review H3.
-	button.custom_minimum_size.y = 168.0
+	var button := Ui.button(text, 300.0)
+	# Action-button sized, in the same league as 002's J (330 design units):
+	# 300 * (1080 / 1280) = 253 device px = 90dp at density 450 (~17mm).
+	# The old 168 gave 141.75px = 50.4dp -- the bare minimum touch target,
+	# too small to mash comfortably in a jump-heavy game.
+	button.custom_minimum_size.y = 300.0
 	button.focus_mode = Control.FOCUS_NONE
 	button.button_down.connect(Input.action_press.bind(action))
 	button.button_up.connect(Input.action_release.bind(action))

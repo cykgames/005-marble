@@ -14,6 +14,7 @@ const TOO_DEAR := Color(1.0, 0.5, 0.5)
 var _skins: Array[MarbleSkin] = []
 var _chips: Array[SkinChip] = []
 var _index: int = 0
+var _portrait: bool = false
 var _preview: MarblePreview
 var _name_label: Label
 var _description: Label
@@ -25,6 +26,9 @@ var _swap_tween: Tween
 
 
 func _ready() -> void:
+	_portrait = DisplayServer.is_touchscreen_available() \
+		and get_viewport_rect().size.y > get_viewport_rect().size.x
+	Ui.apply_phone_theme(self)
 	_skins.assign(SkinLibrary.load_default().skins.filter(
 		func(skin: MarbleSkin) -> bool: return skin != null))
 	add_child(Ui.shade(Color(0.03, 0.06, 0.12, 0.7)))
@@ -46,8 +50,8 @@ func _ready() -> void:
 
 	var stage := Ui.row(22)
 	stage.alignment = BoxContainer.ALIGNMENT_CENTER
-	var previous := Ui.round_button(Icon.Kind.LEFT)
-	var next := Ui.round_button(Icon.Kind.RIGHT)
+	var previous := Ui.round_button(Icon.Kind.LEFT, 160.0 if _portrait else 60.0)
+	var next := Ui.round_button(Icon.Kind.RIGHT, 160.0 if _portrait else 60.0)
 	previous.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	next.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	previous.focus_mode = Control.FOCUS_NONE
@@ -62,7 +66,7 @@ func _ready() -> void:
 	var swatches := Ui.row(10)
 	swatches.alignment = BoxContainer.ALIGNMENT_CENTER
 	for index in _skins.size():
-		var chip := SkinChip.new(_skins[index].accent_color)
+		var chip := SkinChip.new(_skins[index].accent_color, 76.0 if _portrait else 50.0)
 		chip.pressed.connect(_show.bind(index))
 		swatches.add_child(chip)
 		_chips.append(chip)
@@ -74,6 +78,9 @@ func _ready() -> void:
 	back.pressed.connect(SceneManager.goto_main_menu)
 	_action = Ui.button("Equip", 260.0, Icon.Kind.NONE, &"PrimaryButton")
 	_action.pressed.connect(_on_action_pressed)
+	if _portrait:
+		back.custom_minimum_size.y = 160.0
+		_action.custom_minimum_size.y = 160.0
 	buttons.add_child(back)
 	buttons.add_child(_action)
 	box.add_child(buttons)
@@ -96,23 +103,26 @@ func _ready() -> void:
 func _build_card() -> PanelContainer:
 	var card := PanelContainer.new()
 	var box := Ui.column(0)
-	box.custom_minimum_size.x = 440.0
+	box.custom_minimum_size.x = 560.0 if _portrait else 440.0
 	card.add_child(box)
 	_preview = PREVIEW.instantiate()
-	_preview.custom_minimum_size = Vector2(250.0, 230.0)
+	_preview.custom_minimum_size = Vector2(320.0, 300.0) if _portrait else Vector2(250.0, 230.0)
 	_preview.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(_preview)
 	_name_label = Ui.label("", &"HeadingLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	box.add_child(_name_label)
 	_description = Ui.label("", &"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	_description.modulate.a = 0.85
+	if _portrait:
+		# Phone-theme descriptions are long enough to need a second line.
+		_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_description)
 	box.add_child(Ui.gap(8))
 	# The gem is hidden, not removed, once a skin is owned: the line keeps its
 	# height either way.
 	var status := Ui.row(8)
 	status.alignment = BoxContainer.ALIGNMENT_CENTER
-	status.custom_minimum_size.y = 34.0
+	status.custom_minimum_size.y = 56.0 if _portrait else 34.0
 	_status_gem = Icon.new(Icon.Kind.GEM, 22.0, Icon.GEM_BLUE)
 	_status_gem.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	status.add_child(_status_gem)
