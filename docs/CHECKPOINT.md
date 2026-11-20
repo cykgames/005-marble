@@ -189,9 +189,50 @@ push (0 hits at v0.1.0).
   pill clear of JUMP). 005 has no [CYKTEST] channel so harness reports
   touch_pass=false (pixel liveness only); pressed-state + airborne marble
   is the touch evidence for this pass.
-- A57: v0.1.5 installed; v0.1.6 pending (device locked/dozing, wireless
-  adb connection refused). Install when next awake.
-- Known gap found, NOT fixed this pass: no touch pause button in-game
-  (pause = ESC/P/gamepad Start only; Android back quits). Follow-up candidate.
+- A57: v0.1.5 installed; v0.1.6+ pending (device locked/dozing/offline,
+  wireless adb refused; mDNS empty again 2026-11-20 23:05). Install when
+  next awake.
+- Pause gap FIXED 2026-11-20 (user approved): touch pause chip + Android
+  back pauses in-game. See section below.
 - Evidence: cykbot9 workspace artifacts/tmp/ui005_20261120/*.png and
   artifacts/release_verify_20261120_214955 / _220754.
+
+## 2026-11-20 pause chip + Android back (v0.1.7 -> v0.1.9)
+
+- Chip: top-right under the level title/environment pill. Invisible
+  166x166 hit (140 device px = 50dp @450), 76x56 face at screen y128..184
+  with drawn Icon.Kind.PAUSE, pressed tint. Same pattern as 001/002/006.
+  Chip parses a real InputEventAction("pause"); PauseMenu owns the paused
+  state exactly as for ESC/P. NOTIFICATION_PAUSED in TouchControls drops
+  held stick + jump so a finger lifted during pause cannot keep rolling
+  the marble on resume.
+- Three Godot 4.7 facts, each found by device test + source/diag proof:
+  1. Input.action_press/release only set polled state -- they emit NO
+     event (headless diag: _unhandled_input saw nothing). PauseMenu
+     listens for events, so the chip parses InputEventAction explicitly.
+  2. set_input_as_handled does NOT suppress quit-on-back.
+     SceneTree::_main_window_go_back checks only the quit_on_go_back
+     flag (4.7-stable source). PauseMenu._ready sets it false,
+     _exit_tree restores true: in-game back pauses/resumes, menus keep
+     default back-to-quit.
+  3. Android delivers NOTIFICATION_WM_GO_BACK_REQUEST TWICE per physical
+     press (key path + AndroidRuntime plugin path; logcat measured 3 and
+     21ms apart on A54). A naive toggle paused then instantly resumed.
+     300ms debounce (BACK_DEBOUNCE_MS) treats the pair as one press.
+- probe_touch_ui extended: hit >=120px both axes, clear of JUMP/clock,
+  face inside hit, chip->PauseMenu pause/resume round trip, held-action
+  release on pause, quit_on_go_back ownership + restore, back pause +
+  same-instant double-delivery debounce + later-press resume.
+- Versions: v0.1.7 (107) chip, v0.1.8 (108) flag fix, v0.1.9 (109)
+  debounce. Commits 208bd75 / 2823cd3 / 95cb87b, bumps d7a8fb7 / 4d6db28
+  / 940dd86. Pushed: origin/main == 940dd86 (ls-remote verified).
+- Verified on A54 v0.1.9: chip tap -> PAUSED card (clock frozen 4.44),
+  Resume tap -> live (6.16); ONE back press -> PAUSED (clock frozen
+  10.05, FG stays com.cykagent.marble), second back -> live (11.81).
+  Headless gate PASS each release (finish ~9.6s, 10/10 gems); release
+  smoke PASS (pixel liveness only -- 005 has no [CYKTEST] channel).
+  force-stop + stayon restored after testing.
+- Evidence: artifacts/tmp/ui005_pause_20261120/*.png (02 chip, 03 chip
+  pause, 04 resume, 06 back pause, 07 back resume),
+  artifacts/release_verify_20261120_223242 / _224536 / _230046,
+  probe log artifacts/tmp/probe_pause_005.log.
