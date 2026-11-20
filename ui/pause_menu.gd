@@ -59,8 +59,18 @@ func _ready() -> void:
 
 
 ## Alt-tabbing mid-level pauses, so the clock does not run while the window is
-## in the background.
+## in the background. The Android back button pauses too (and resumes from
+## the pause card) instead of quitting the app mid-run; marking the input
+## handled is what suppresses Godot's default quit-on-back.
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if is_node_ready() and is_inside_tree():
+			if _open:
+				resume()
+			else:
+				pause()
+			get_viewport().set_input_as_handled()
+		return
 	if what != NOTIFICATION_APPLICATION_FOCUS_OUT \
 			and what != NOTIFICATION_WM_WINDOW_FOCUS_OUT:
 		return

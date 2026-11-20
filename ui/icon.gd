@@ -8,7 +8,7 @@ extends Control
 
 enum Kind {
 	NONE, PLAY, LEVELS, SHOP, QUIT, LEFT, RIGHT, BACK, NEXT, LOCK, DIAMOND, STAR,
-	CHECK, RESTART, HOME, GEM,
+	CHECK, RESTART, HOME, GEM, PAUSE,
 }
 
 const LIGHT := Color(1.0, 1.0, 1.0, 0.94)
@@ -45,6 +45,9 @@ func _draw() -> void:
 	match kind:
 		Kind.PLAY:
 			_fill([Vector2(0.26, 0.14), Vector2(0.86, 0.5), Vector2(0.26, 0.86)])
+		Kind.PAUSE:
+			draw_rect(Rect2(Vector2(0.22, 0.16) * s, Vector2(0.18, 0.68) * s), color)
+			draw_rect(Rect2(Vector2(0.60, 0.16) * s, Vector2(0.18, 0.68) * s), color)
 		Kind.LEVELS:
 			for cell in [Vector2(0.12, 0.12), Vector2(0.56, 0.12),
 					Vector2(0.12, 0.56), Vector2(0.56, 0.56)]:

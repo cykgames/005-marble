@@ -15,6 +15,8 @@ checkpoints, power-ups, hidden collectibles. Base:
 Touch (Android):
 - **Left half of screen:** floating stick — drag to roll the marble.
 - **JUMP button** (bottom right): jump / swim stroke.
+- **Pause chip** (top right, under the level name): opens the pause card;
+  the Android back button does the same (back again resumes).
 - Menus, pause and results are tappable buttons.
 
 Keyboard (desktop, kept for testing):
