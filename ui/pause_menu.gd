@@ -18,9 +18,15 @@ var _hint: Control
 const RISE := 28.0
 const OPEN_SECONDS := 0.24
 const CLOSE_SECONDS := 0.14
+## Godot 4.7 on Android delivers NOTIFICATION_WM_GO_BACK_REQUEST twice per
+## physical back press (key path + AndroidRuntime plugin path; measured
+## 3-21ms apart on A54). Without a debounce the toggle pauses and at once
+## resumes, netting nothing. Deliveries closer than this are one press.
+const BACK_DEBOUNCE_MS := 300
 
 var _open: bool = false
 var _tween: Tween
+var _last_back_ms: int = -100000
 
 
 func _ready() -> void:
@@ -70,6 +76,10 @@ func _ready() -> void:
 ## for as long as this menu is in the tree (see _ready / _exit_tree).
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		var now := Time.get_ticks_msec()
+		if now - _last_back_ms < BACK_DEBOUNCE_MS:
+			return
+		_last_back_ms = now
 		if is_node_ready() and is_inside_tree():
 			if _open:
 				resume()

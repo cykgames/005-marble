@@ -110,14 +110,21 @@ func _ready() -> void:
 	if get_tree().paused:
 		failures.append("pause action toggle did not resume")
 	# Android back: the menu owns quit_on_go_back while present (4.7 quits
-	# on back purely on that flag -- set_input_as_handled cannot stop it),
-	# and the back notification toggles pause like the chip does.
+	# on back purely on that flag -- set_input_as_handled cannot stop it).
+	# 4.7 delivers the back notification TWICE per press (3-21ms apart on
+	# device), so a same-instant second delivery must be debounced, and a
+	# later press must still resume.
 	if get_tree().quit_on_go_back:
 		failures.append("quit_on_go_back not owned by pause menu")
 	pm.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await get_tree().process_frame
 	if not get_tree().paused:
 		failures.append("back notification did not pause")
+	pm.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
+	await get_tree().process_frame
+	if not get_tree().paused:
+		failures.append("double back delivery was not debounced")
+	await get_tree().create_timer(0.35, true).timeout
 	pm.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await get_tree().process_frame
 	if get_tree().paused:
