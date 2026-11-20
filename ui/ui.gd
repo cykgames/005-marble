@@ -139,7 +139,28 @@ static func decorate(node: Button, kind: Icon.Kind) -> Icon:
 	# Sits a little high: the bottom of a button is its lip, not its face.
 	icon.offset_top = -13.5
 	icon.offset_bottom = 8.5
+	# Phone fonts can make a label fill the whole content width and run under
+	# the icon ("Restart Level"). Widen the left content margin so centred
+	# text always starts right of the icon. Deferred to tree entry: buttons
+	# are usually decorated before they are parented.
+	if DisplayServer.is_touchscreen_available():
+		if node.is_inside_tree():
+			_phone_decorate_margins(node)
+		else:
+			node.tree_entered.connect(_phone_decorate_margins.bind(node),
+				Object.CONNECT_ONE_SHOT)
 	return icon
+
+
+static func _phone_decorate_margins(node: Button) -> void:
+	var rect := node.get_viewport_rect().size
+	if rect.y <= rect.x:
+		return
+	for state: StringName in [&"normal", &"hover", &"pressed", &"hover_pressed", &"disabled"]:
+		var sb := node.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+		if sb != null:
+			sb.content_margin_left = 64.0
+			node.add_theme_stylebox_override(state, sb)
 
 
 ## A round button that is nothing but an icon.
